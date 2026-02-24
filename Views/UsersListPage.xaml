@@ -1,0 +1,33 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:EdenProject.ViewModels"
+             xmlns:models="clr-namespace:EdenProject.Models"
+             x:DataType="viewmodels:UsersListPageViewModel"
+             x:Class="EdenProject.Views.UsersListPage"
+             Title="Users List">
+
+    <Grid RowDefinitions="Auto, *" Padding="20">
+        <Label Grid.Row="0" Text="Users List" FontSize="28" 
+               HorizontalOptions="Center" Margin="0,0,0,20" TextColor="#3a7bd5" FontAttributes="Bold"/>
+
+        <CollectionView Grid.Row="1" 
+                        ItemsSource="{Binding Users}"
+                        SelectionMode="Single"
+                        SelectionChangedCommand="{Binding UserSelectedCommand}"
+                        SelectionChangedCommandParameter="{Binding SelectedItem, Source={RelativeSource Self}}">
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:User">
+                    <Border Stroke="#ccc" StrokeShape="RoundRectangle 10" Margin="0,5" Padding="15">
+                        <HorizontalStackLayout Spacing="15" VerticalOptions="Center">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding FirstName}" FontAttributes="Bold" FontSize="18" />
+                                <Label Text="{Binding UserEmail}" FontSize="14" TextColor="Gray" />
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

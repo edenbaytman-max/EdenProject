@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:EdenProject.ViewModels"
+             xmlns:models="clr-namespace:EdenProject.Models"
+             x:DataType="viewmodels:AdminPageViewModel"
+             x:Class="EdenProject.Views.AdminPage"
+             Title="ניהול משתמשים">
+
+    <Grid RowDefinitions="Auto, Auto, *" Padding="20" RowSpacing="15">
+
+        <VerticalStackLayout Grid.Row="0" HorizontalOptions="Center" Spacing="5">
+            <Label Text="Admin Control Panel" 
+                   FontSize="24" 
+                   TextColor="HotPink" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center" />
+            <Label Text="לחץ על משתמש לעריכה או על הפח למחיקה" 
+                   FontSize="14" 
+                   TextColor="Gray" 
+                   HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <Button Grid.Row="1" 
+                Text="רענן רשימה"
+                Command="{Binding ViewUsersCommand}"
+                BackgroundColor="LightBlue"
+                TextColor="Black"
+                CornerRadius="10"
+                HeightRequest="45"
+                FontAttributes="Bold"/>
+
+        <CollectionView Grid.Row="2" 
+                        ItemsSource="{Binding Users}"
+                        SelectionMode="None">
+
+            <CollectionView.EmptyView>
+                <Label Text="אין משתמשים רשומים כרגע" 
+                       HorizontalOptions="Center" 
+                       VerticalOptions="Center" 
+                       TextColor="Gray"/>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:User">
+                    <Frame Margin="0,5" Padding="15" BorderColor="LightGray" CornerRadius="10" HasShadow="True">
+
+                        <Grid ColumnDefinitions="Auto, *, Auto, Auto">
+
+                            <Label Grid.Column="0" Text="👤" FontSize="25" VerticalOptions="Center" Margin="0,0,15,0">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer 
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:AdminPageViewModel}}, Path=UserSelectedCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <VerticalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer 
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:AdminPageViewModel}}, Path=UserSelectedCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </VerticalStackLayout.GestureRecognizers>
+
+                                <HorizontalStackLayout Spacing="5">
+                                    <Label Text="{Binding FirstName}" FontAttributes="Bold" FontSize="16"/>
+                                    <Label Text="{Binding LastName}" FontAttributes="Bold" FontSize="16"/>
+                                </HorizontalStackLayout>
+                                <Label Text="{Binding UserEmail}" TextColor="Gray" FontSize="13"/>
+                            </VerticalStackLayout>
+
+                            <Button Grid.Column="2" 
+                                    Text="🗑️" 
+                                    BackgroundColor="Transparent"
+                                    TextColor="Red"
+                                    FontSize="20"
+                                    VerticalOptions="Center"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:AdminPageViewModel}}, Path=DeleteUserCommand}"
+                                    CommandParameter="{Binding .}" />
+
+                            <Label Grid.Column="3" Text="➡️" VerticalOptions="Center" TextColor="HotPink" Margin="10,0,0,0">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer 
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:AdminPageViewModel}}, Path=UserSelectedCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

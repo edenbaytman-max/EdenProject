@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:EdenProject.ViewModels"
+             xmlns:views="clr-namespace:EdenProject.Views"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="EdenProject.Views.SignUpPage"
+             x:DataType="viewmodels:SignUpViewModel"
+             Title="Sign Up">
+
+    <ContentPage.Resources>
+        <Style x:Key="InvalidEntryStyle" TargetType="Entry">
+            <Setter Property="TextColor" Value="Red" />
+        </Style>
+        <Style x:Key="ValidEntryStyle" TargetType="Entry">
+            <Setter Property="TextColor" Value="Wheat" />
+        </Style>
+    </ContentPage.Resources>
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Offset="0.0" Color="#004FF9"/>
+            <GradientStop Offset="1.0" Color="#FFF94C"/>
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid RowDefinitions="Auto,*,Auto"
+          ColumnDefinitions="*,8*,*"
+          RowSpacing="20"
+          Padding="15">
+
+        <Label Grid.Row="0" Grid.Column="1"
+               TextColor="White"
+               Text="Create Account"
+               FontSize="24"
+               FontAttributes="Bold"
+               HorizontalOptions="Center" />
+
+        <VerticalStackLayout Grid.Row="1" Grid.Column="1"
+                             Spacing="15"
+                             VerticalOptions="Center">
+
+            <Border Stroke="#ccc" StrokeShape="RoundRectangle 8">
+                <Entry Placeholder="First Name" Text="{Binding FirstName}" TextColor="Wheat" />
+            </Border>
+
+            <Border Stroke="#ccc" StrokeShape="RoundRectangle 8">
+                <Entry Placeholder="Last Name" Text="{Binding LastName}" TextColor="Wheat" />
+            </Border>
+
+            <Border Stroke="#ccc" StrokeShape="RoundRectangle 8">
+                <Entry Placeholder="Email" 
+                       Keyboard="Email" 
+                       Text="{Binding UserEmail}">
+                    <Entry.Behaviors>
+                        <toolkit:EmailValidationBehavior 
+                            InvalidStyle="{StaticResource InvalidEntryStyle}"
+                            ValidStyle="{StaticResource ValidEntryStyle}"
+                            Flags="ValidateOnValueChanged"/>
+                    </Entry.Behaviors>
+                </Entry>
+            </Border>
+
+            <Border Stroke="#ccc" StrokeShape="RoundRectangle 8">
+                <Entry Placeholder="Mobile" Keyboard="Telephone" Text="{Binding Mobile}" TextColor="Wheat" />
+            </Border>
+
+            <Border Stroke="#ccc" StrokeShape="RoundRectangle 8">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="5">
+                    <Entry Grid.Column="0"
+                           Placeholder="Password"
+                           Text="{Binding UserPassword}"
+                           IsPassword="{Binding EntryAsPassword}" 
+                           TextColor="Wheat"
+                           FontSize="18"
+                           VerticalOptions="Center"
+                           BackgroundColor="Transparent"/>
+
+                    <Button Grid.Column="1"
+                            FontFamily="MaterialSymbolsFont"
+                            Text="{Binding PasswordIconCode}" 
+                            Command="{Binding ShowPasswordCommand}" 
+                            FontSize="24"
+                            TextColor="White"
+                            BackgroundColor="Transparent"
+                            Padding="0"
+                            Margin="5,0,0,0"
+                            HorizontalOptions="End"/>
+                </Grid>
+            </Border>
+
+            <Button Text="Sign Up"
+                    Command="{Binding SignUpCommand}"
+                    CornerRadius="8"
+                    HeightRequest="55"
+                    FontSize="20"
+                    Margin="0,10,0,0"/>
+
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+                <Label Text="Already have an account?" TextColor="White" VerticalOptions="Center" />
+                <Button Text="Sign In" TextColor="BlueViolet" Command="{Binding SignInCommand}" BackgroundColor="Transparent" Padding="0"/>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

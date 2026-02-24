@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:EdenProject.ViewModels"
+             x:DataType="viewmodels:SignInPageViewModel"
+             x:Class="EdenProject.Views.SignInPage"
+             Title="SignInPage">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Offset="0.0" Color="LightCyan"/>
+            <GradientStop Offset="0.5" Color="#3a7bd5"/>
+            <GradientStop Offset="1.0" Color="Purple"/>
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid RowDefinitions="*, Auto">
+        <VerticalStackLayout
+            Grid.Row="0"
+            Padding="30"
+            Spacing="25"
+            VerticalOptions="Center">
+
+            <Label
+                Text="כניסה"
+                FontAttributes="Bold"
+                FontSize="25"
+                HorizontalOptions="Center"
+                TextColor="Snow" />
+
+            <Border
+                Padding="10,0"
+                Stroke="#ccc"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="1">
+                <Entry
+                    Keyboard="Email"
+                    FontSize="18"
+                    Placeholder="Email"
+                    TextColor="Wheat"
+                    PlaceholderColor="LightGray"
+                    ReturnType="Next"
+                    Text="{Binding UserName}" />
+            </Border>
+
+            <Border
+                Stroke="#ccc"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="1">
+                <Grid
+                    Padding="10,0"
+                    ColumnDefinitions="*,Auto"
+                    VerticalOptions="Center">
+                    <Entry
+                        Grid.Column="0"
+                        BackgroundColor="Transparent"
+                        FontSize="18"
+                        IsPassword="{Binding EntryAsPassword}"
+                        Placeholder="סיסמה"
+                        TextColor="Wheat"
+                        PlaceholderColor="LightGray"
+                        VerticalOptions="Center"
+                        Text="{Binding UserPassword}" />
+
+                    <Button
+                        Grid.Column="1"
+                        FontFamily="MaterialSymbolsFont"
+                        BackgroundColor="Transparent"
+                        FontSize="24"
+                        Text="{Binding TogglePaswwordButtonText}"
+                        TextColor="White"
+                        Command="{Binding ShowPasswordCommand}" />
+                </Grid>
+            </Border>
+
+            <Button
+                Text="התחברות"
+                CornerRadius="8"
+                FontSize="18"
+                HeightRequest="50"
+                IsEnabled="{Binding IsSignInButtonEnabled}"
+                Command="{Binding SignInCommand}"
+                TextColor="White" />
+
+            <Label
+                Text="{Binding LoginMessage}"
+                FontSize="16"
+                HorizontalTextAlignment="Center"
+                IsVisible="{Binding SignInMessageVisible}"
+                TextColor="{Binding SignInColor}" />
+        </VerticalStackLayout>
+
+        <HorizontalStackLayout 
+            Grid.Row="1"
+            HorizontalOptions="Center" 
+            Spacing="5" 
+            Padding="20">
+            <Label Text="אין לך חשבון?" TextColor="White" VerticalOptions="Center" />
+            <Button 
+                Text="להרשמה" 
+                TextColor="LightCyan" 
+                FontAttributes="Bold"
+                Command="{Binding GoToSignUpCommand}" 
+                BackgroundColor="Transparent" 
+                Padding="0"/>
+        </HorizontalStackLayout>
+    </Grid>
+</ContentPage>

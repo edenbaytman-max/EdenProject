@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:EdenProject.ViewModels"
+             x:Class="EdenProject.Views.MainPage"
+             x:DataType="viewmodels:MainPageViewModel"
+             Title="Main Page">
+
+    <Grid RowDefinitions="Auto, *, Auto">
+        <HorizontalStackLayout Grid.Row="0" HorizontalOptions="Center" Spacing="20" Padding="15">
+            <Button Text="🏠" Command="{Binding NavigateCommand}" CommandParameter="MainPage" BackgroundColor="Transparent" FontSize="20"/>
+            <Button Text="👤" Command="{Binding NavigateCommand}" CommandParameter="AccountPage" BackgroundColor="Transparent" FontSize="20"/>
+
+            <Button Text="👥" 
+                Command="{Binding NavigateCommand}" 
+                CommandParameter="AdminPage" 
+                IsVisible="{Binding IsAdmin}" 
+                BackgroundColor="Transparent" FontSize="20"/>
+
+            <Button Text="🚪" Command="{Binding SignOutCommand}" BackgroundColor="Transparent" FontSize="20"/>
+        </HorizontalStackLayout>
+
+        <VerticalStackLayout Grid.Row="1" VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Label Text="{Binding HelloMessage}" FontSize="28" TextColor="MediumPurple" FontAttributes="Bold"/>
+                <Button Text="⚙️" BackgroundColor="MediumPurple" CornerRadius="8" HeightRequest="45" WidthRequest="45" Padding="0"/>
+            </HorizontalStackLayout>
+            <Label Text="Make your greatest app here!" FontSize="18" TextColor="Gray" HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <Button Grid.Row="2" 
+            Text="Log Out" 
+            Command="{Binding SignOutCommand}"
+            TextColor="Red"
+            BackgroundColor="Transparent"
+            FontAttributes="Bold"
+            Margin="20"/>
+
+    </Grid>
+</ContentPage>
