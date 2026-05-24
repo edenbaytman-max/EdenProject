@@ -1,0 +1,39 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:EdenProject.ViewModels"
+             xmlns:models="clr-namespace:EdenProject.Models"
+             x:Class="EdenProject.Views.AnalysisResultsPage"
+             x:DataType="viewmodels:AnalysisResultsViewModel"
+             Title="ניתוח KleinPlay AI">
+
+    <Grid RowDefinitions="*, Auto" Padding="10">
+
+        <CollectionView Grid.Row="0" ItemsSource="{Binding ChatHistory}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:ChatMessage">
+                    <VerticalStackLayout Padding="5">
+                        <Border StrokeShape="RoundRectangle 15"
+                                Padding="12"
+                                HorizontalOptions="{Binding IsAi, Converter={StaticResource AiToLeftConverter}}"
+                                BackgroundColor="{Binding IsAi, Converter={StaticResource AiToColorConverter}}">
+                            <Label Text="{Binding Text}" TextColor="Black" FontSize="16" />
+                        </Border>
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*, Auto" Padding="5" ColumnSpacing="10">
+            <Border Grid.Column="0" StrokeShape="RoundRectangle 20" Padding="5,0">
+                <Entry Placeholder="שאל/י את ה-AI על הניתוח..." 
+                       Text="{Binding UserQuestion}" 
+                       VerticalOptions="Center" />
+            </Border>
+            <Button Grid.Column="1" 
+                    Text="שלח" 
+                    Command="{Binding SendQuestionCommand}" 
+                    CornerRadius="20" 
+                    BackgroundColor="MediumPurple" />
+        </Grid>
+    </Grid>
+</ContentPage>

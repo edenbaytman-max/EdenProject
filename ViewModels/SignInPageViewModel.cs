@@ -1,146 +1,87 @@
-﻿#nullable disable 
-using EdenProject.Service;
-using EdenProject.Views;
+﻿using EdenProject.Models;
+using EdenProject.Services;
 using System.Windows.Input;
-using Microsoft.Maui.Graphics;
 
 namespace EdenProject.ViewModels
 {
     public class SignInPageViewModel : ViewModelBase
     {
-        private readonly DBMokup _db;
-        private bool _entryAsPassword;
-        private string _userName;
-        private string _password;
-        private string _togglePasswordButtonText;
-        private string _loginMessage;
-        private bool _signInMessageVisible;
-        private Color _signInColor;
-        private bool _isSignInButtonEnabled;
+        private readonly FirebaseService _firebaseService;
 
-        public ICommand ShowPasswordCommand { get; }
+        // שדות Binding - שמות תואמים בדיוק ל-XAML שלך
+        private string _userName;
+        public string UserName
+        {
+            get => _userName;
+            set { _userName = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsSignInButtonEnabled)); }
+        }
+
+        private string _userPassword;
+        public string UserPassword
+        {
+            get => _userPassword;
+            set { _userPassword = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsSignInButtonEnabled)); }
+        }
+
+        private bool _entryAsPassword = true;
+        public bool EntryAsPassword { get => _entryAsPassword; set { _entryAsPassword = value; OnPropertyChanged(); } }
+
+        private string _togglePaswwordButtonText = "visibility";
+        public string TogglePaswwordButtonText { get => _togglePaswwordButtonText; set { _togglePaswwordButtonText = value; OnPropertyChanged(); } }
+
+        private string _loginMessage;
+        public string LoginMessage { get => _loginMessage; set { _loginMessage = value; OnPropertyChanged(); } }
+
+        private bool _signInMessageVisible;
+        public bool SignInMessageVisible { get => _signInMessageVisible; set { _signInMessageVisible = value; OnPropertyChanged(); } }
+
+        private Color _signInColor = Colors.White;
+        public Color SignInColor { get => _signInColor; set { _signInColor = value; OnPropertyChanged(); } }
+
+        // בדיקה האם הכפתור פעיל
+        public bool IsSignInButtonEnabled => !string.IsNullOrEmpty(UserName) && !string.IsNullOrEmpty(UserPassword);
+
         public ICommand SignInCommand { get; }
+        public ICommand ShowPasswordCommand { get; }
         public ICommand GoToSignUpCommand { get; }
 
         public SignInPageViewModel()
         {
-            _db = new DBMokup();
-            EntryAsPassword = true;
-            TogglePaswwordButtonText = "\ue8f5";
-            SignInMessageVisible = false;
-            LoginMessage = string.Empty;
-            SignInColor = Colors.Transparent;
+            _firebaseService = new FirebaseService();
 
-            ShowPasswordCommand = new Command(TogglePasswordVisibility);
-            SignInCommand = new Command(Button_Clicked, CanSignIn);
+            SignInCommand = new Command(async () => await OnSignIn());
 
-            GoToSignUpCommand = new Command(async () =>
-                await Shell.Current.GoToAsync(nameof(SignUpPage)));
-        }
-
-        #region Properties
-        public bool IsSignInButtonEnabled
-        {
-            get => _isSignInButtonEnabled;
-            set { _isSignInButtonEnabled = value; OnPropertyChanged(); }
-        }
-
-        public Color SignInColor
-        {
-            get => _signInColor;
-            set { _signInColor = value; OnPropertyChanged(); }
-        }
-
-        public bool SignInMessageVisible
-        {
-            get => _signInMessageVisible;
-            set { _signInMessageVisible = value; OnPropertyChanged(); }
-        }
-
-        public string LoginMessage
-        {
-            get => _loginMessage;
-            set { _loginMessage = value; OnPropertyChanged(); }
-        }
-
-        public string UserName
-        {
-            get => _userName;
-            set
+            ShowPasswordCommand = new Command(() =>
             {
-                _userName = value;
-                OnPropertyChanged();
-                UpdateCommandStates();
-            }
+                EntryAsPassword = !EntryAsPassword;
+                TogglePaswwordButtonText = EntryAsPassword ? "visibility" : "visibility_off";
+            });
+
+            GoToSignUpCommand = new Command(async () => await Shell.Current.GoToAsync("SignUpPage"));
         }
 
-        public string UserPassword
-        {
-            get => _password;
-            set
-            {
-                _password = value;
-                OnPropertyChanged();
-                UpdateCommandStates();
-            }
-        }
-
-        public bool EntryAsPassword
-        {
-            get => _entryAsPassword;
-            set { _entryAsPassword = value; OnPropertyChanged(); }
-        }
-
-        public string TogglePaswwordButtonText
-        {
-            get => _togglePasswordButtonText;
-            set { _togglePasswordButtonText = value; OnPropertyChanged(); }
-        }
-        #endregion
-
-        private void UpdateCommandStates()
-        {
-            ((Command)SignInCommand).ChangeCanExecute();
-            IsSignInButtonEnabled = CanSignIn();
-        }
-
-        private void TogglePasswordVisibility()
-        {
-            EntryAsPassword = !EntryAsPassword;
-            TogglePaswwordButtonText = EntryAsPassword ? "\ue8f5" : "\ue8f4";
-        }
-
-        private async void Button_Clicked()
+        private async Task OnSignIn()
         {
             SignInMessageVisible = true;
+            LoginMessage = "מתחבר...";
+            SignInColor = Colors.White;
 
-            // בדיקה האם המשתמש קיים
-            if (_db.isExist(UserName, UserPassword))
+            // שימוש ב-UserName (שב-XAML הוא האימייל)
+            var user = await _firebaseService.LoginUser(UserName, UserPassword);
+
+            if (user != null)
             {
-                // --- תוספת לניהול אדמין ---
-                // שולפים את אובייקט המשתמש המלא מה-DB (וודאי שיש לך מתודת GetUser ב-DBMokup)
-                var loggedInUser = _db.GetUser(UserName, UserPassword);
-
-                // שומרים את המשתמש במיקום סטטי ב-App כדי שיהיה נגיש לכל האפליקציה
-                App.CurrentUser = loggedInUser;
-                // -------------------------
-
-                LoginMessage = "התחברת בהצלחה!";
-                SignInColor = Colors.Green;
-
-                await Task.Delay(1000);
-                await Shell.Current.GoToAsync("///MainPage");
+                if (user.IsAdmin)
+                    await Shell.Current.GoToAsync("//ManagerPage");
+                else
+                    App.CurrentUser = user;
+                    await Shell.Current.GoToAsync("//MainPage");
             }
             else
             {
-                LoginMessage = "שגיאת התחברות - נתונים שגויים";
                 SignInColor = Colors.Red;
+                LoginMessage = "אימייל או סיסמה שגויים";
             }
-        }
-
-        private bool CanSignIn()
-        {
-            return !string.IsNullOrEmpty(UserName) && !string.IsNullOrEmpty(UserPassword);
         }
     }
 }

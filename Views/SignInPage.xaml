@@ -4,7 +4,7 @@
              xmlns:viewmodels="clr-namespace:EdenProject.ViewModels"
              x:DataType="viewmodels:SignInPageViewModel"
              x:Class="EdenProject.Views.SignInPage"
-             Title="SignInPage">
+             Title="Sign In">
 
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -64,7 +64,6 @@
 
                     <Button
                         Grid.Column="1"
-                        FontFamily="MaterialSymbolsFont"
                         BackgroundColor="Transparent"
                         FontSize="24"
                         Text="{Binding TogglePaswwordButtonText}"

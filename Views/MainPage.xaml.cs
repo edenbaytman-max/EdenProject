@@ -10,15 +10,13 @@ public partial class MainPage : ContentPage
         BindingContext = viewModel;
     }
 
-    // הוספת פונקציה שקורית בכל פעם שהדף עולה למסך
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-
-        // מרענן את הנתונים ב-ViewModel כדי שהשם והרשאות האדמין יופיעו מיד
-        if (BindingContext is MainPageViewModel vm)
+        var vm = BindingContext as MainPageViewModel;
+        if (vm != null)
         {
-            vm.RefreshUser();
+            await vm.LoadChildren(); // הוספת await כדי שיחכה לנתונים
         }
     }
 }

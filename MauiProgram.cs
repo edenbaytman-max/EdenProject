@@ -44,11 +44,18 @@ namespace EdenProject
             builder.Services.AddTransient<AccountPageViewModel>();
             builder.Services.AddTransient<AccountPage>();
 
+
+            builder.Services.AddTransient<AddChildViewModel>();
+            builder.Services.AddTransient<AddChildPage>();
+            builder.Services.AddTransient <DollHouseViewModel>();
+            builder.Services.AddTransient<DollHousePage>();
+
             builder.Services.AddTransient<SignUpViewModel>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
-
+            // רישום השירות של פיירבייס
+            builder.Services.AddSingleton<Services.FirebaseService>();
             return builder.Build();
         }
     }

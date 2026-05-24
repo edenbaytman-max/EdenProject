@@ -2,39 +2,83 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:EdenProject.ViewModels"
+             xmlns:models="clr-namespace:EdenProject.Models"
              x:Class="EdenProject.Views.MainPage"
              x:DataType="viewmodels:MainPageViewModel"
-             Title="Main Page">
+             Title="KleinPlay Dashboard">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Offset="0.0" Color="LightCyan"/>
+            <GradientStop Offset="1.0" Color="#3a7bd5"/>
+        </LinearGradientBrush>
+    </ContentPage.Background>
 
     <Grid RowDefinitions="Auto, *, Auto">
+
         <HorizontalStackLayout Grid.Row="0" HorizontalOptions="Center" Spacing="20" Padding="15">
             <Button Text="🏠" Command="{Binding NavigateCommand}" CommandParameter="MainPage" BackgroundColor="Transparent" FontSize="20"/>
             <Button Text="👤" Command="{Binding NavigateCommand}" CommandParameter="AccountPage" BackgroundColor="Transparent" FontSize="20"/>
-
             <Button Text="👥" 
-                Command="{Binding NavigateCommand}" 
-                CommandParameter="AdminPage" 
-                IsVisible="{Binding IsAdmin}" 
-                BackgroundColor="Transparent" FontSize="20"/>
-
+                    Command="{Binding NavigateCommand}" 
+                    CommandParameter="AdminPage" 
+                    IsVisible="{Binding IsAdmin}" 
+                    BackgroundColor="Transparent" FontSize="20"/>
             <Button Text="🚪" Command="{Binding SignOutCommand}" BackgroundColor="Transparent" FontSize="20"/>
         </HorizontalStackLayout>
 
-        <VerticalStackLayout Grid.Row="1" VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
-            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
-                <Label Text="{Binding HelloMessage}" FontSize="28" TextColor="MediumPurple" FontAttributes="Bold"/>
-                <Button Text="⚙️" BackgroundColor="MediumPurple" CornerRadius="8" HeightRequest="45" WidthRequest="45" Padding="0"/>
-            </HorizontalStackLayout>
-            <Label Text="Make your greatest app here!" FontSize="18" TextColor="Gray" HorizontalOptions="Center"/>
+        <VerticalStackLayout Grid.Row="1" Spacing="20" Padding="20">
+
+            <Label Text="{Binding HelloMessage}" 
+                   FontSize="26" 
+                   TextColor="White" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center"/>
+
+            <Label Text="בחר/י ילד כדי להתחיל משחק:" 
+                   FontSize="18" 
+                   TextColor="Snow" 
+                   HorizontalOptions="Center"/>
+
+            <CollectionView ItemsSource="{Binding ChildrenList}"
+                            SelectionMode="Single"
+                            SelectedItem="{Binding SelectedChild}"
+                            HeightRequest="300">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Child">
+                        <Border StrokeShape="RoundRectangle 15" Padding="15" BackgroundColor="White" Opacity="0.9">
+                            <HorizontalStackLayout Spacing="15">
+                                <Label Text="👶" FontSize="30" VerticalOptions="Center"/>
+                                <VerticalStackLayout VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" FontSize="20" FontAttributes="Bold" TextColor="Black"/>
+                                    <Label Text="{Binding Age, StringFormat='גיל: {0}'}" TextColor="Gray"/>
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Button Text="הוספת ילד חדש +" 
+                    Command="{Binding AddChildCommand}" 
+                    BackgroundColor="MediumPurple" 
+                    CornerRadius="10" 
+                    HeightRequest="50"
+                    FontAttributes="Bold"/>
         </VerticalStackLayout>
 
         <Button Grid.Row="2" 
-            Text="Log Out" 
-            Command="{Binding SignOutCommand}"
-            TextColor="Red"
-            BackgroundColor="Transparent"
-            FontAttributes="Bold"
-            Margin="20"/>
-
+                Text="התחל משחק בבית הבובות ➔" 
+                Command="{Binding StartGameCommand}"
+                IsEnabled="{Binding IsChildSelected}"
+                BackgroundColor="Green"
+                TextColor="White"
+                FontAttributes="Bold"
+                Margin="20"
+                HeightRequest="60"
+                CornerRadius="30"/>
     </Grid>
 </ContentPage>

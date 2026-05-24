@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:EdenProject.ViewModels"
+             x:Class="EdenProject.Views.DollHousePage"
+             Title="בית הבובות של {Binding ChildName}"
+             ControlTemplate="{StaticResource BasePageTemplate}">
+
+    <Grid RowDefinitions="Auto, *, Auto" Padding="10" RowSpacing="10" BackgroundColor="#FDFBF7">
+
+        <!-- 1. כותרת עליונה של סטטוס -->
+        <Label Grid.Row="0" Text="{Binding GameStatusMessage}" 
+               FontSize="16" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#5A5A5A"/>
+
+        <!-- 2. האזור המרכזי: מחולק לסרגלים (ימין) ובית (שמאל) -->
+        <Grid Grid.Row="1" ColumnDefinitions="140, *" ColumnSpacing="10">
+
+            <!-- סרגלים אנכיים בצד ימין (בתוך ScrollView כדי שלא ייחתך במסכים קטנים) -->
+            <ScrollView Grid.Column="0">
+                <VerticalStackLayout Spacing="15">
+
+                    <!-- סרגל דמויות אנכי -->
+                    <Label Text="👥 דמויות:" FontAttributes="Bold" TextColor="#5A5A5A" HorizontalOptions="Center"/>
+                    <Frame BackgroundColor="#FFF3E0" CornerRadius="10" Padding="5" BorderColor="#FFE0B2" HasShadow="False">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="🧑 הילד" FontSize="18">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Character:הילד"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="👩 אמא" FontSize="18">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Character:אמא"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="👨 אבא" FontSize="18">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Character:אבא"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="👧 אחות" FontSize="18">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Character:אחות"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="👦 אח" FontSize="18">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Character:אח"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="🐶 כלב" FontSize="18">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Character:כלב"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="🦁 אריה" FontSize="18" TextColor="Red">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Character:אריה"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="🦈 כריש" FontSize="18" TextColor="Red">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Character:כריש"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- סרגל רגשות אנכי מורחב -->
+                    <Label Text="🎭 רגשות:" FontAttributes="Bold" TextColor="#5A5A5A" HorizontalOptions="Center"/>
+                    <Frame BackgroundColor="#E1F5FE" CornerRadius="10" Padding="5" BorderColor="#B3E5FC" HasShadow="False">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="😃 שמחה" FontSize="16">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Emotion:😃 שמחה"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="😢 עצב" FontSize="16">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Emotion:😢 עצב"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="😡 כעס" FontSize="16">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Emotion:😡 כעס"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="😨 פחד" FontSize="16">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Emotion:😨 פחד"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="🥰 אהבה" FontSize="16">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Emotion:🥰 אהבה"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="💚 קנאה" FontSize="16">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Emotion:💚 קנאה"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="😌 רוגע" FontSize="16">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Emotion:😌 רוגע"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="⛈️ סערה" FontSize="16">
+                                <Label.GestureRecognizers>
+                                    <DragGestureRecognizer CanDrag="True" DragStartingCommandParameter="Emotion:⛈️ סערה"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </VerticalStackLayout>
+                    </Frame>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- מפת הבית בצד שמאל (3 שורות של חדרים בפסטל) -->
+            <Grid Grid.Column="1" RowDefinitions="*, *, 100" ColumnDefinitions="*, *" RowSpacing="8" ColumnSpacing="8">
+
+                <!-- חדר הורים -->
+                <Frame Grid.Row="0" Grid.Column="0" BackgroundColor="#E8EAF6" BorderColor="#C5CAE9" Padding="5">
+                    <StackLayout>
+                        <Label Text="🏠 חדר הורים" FontAttributes="Bold" HorizontalOptions="Center" FontSize="12"/>
+                        <CollectionView ItemsSource="{Binding ParentsRoomItems}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Label Text="{Binding}" FontSize="14" HorizontalOptions="Center"/>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                    <Frame.GestureRecognizers>
+                        <DropGestureRecognizer AllowDrop="True" CommandParameter="חדר הורים"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+                <!-- חדר ילד -->
+                <Frame Grid.Row="0" Grid.Column="1" BackgroundColor="#E3F2FD" BorderColor="#BBDEFB" Padding="5">
+                    <StackLayout>
+                        <Label Text="🧸 חדר הילד" FontAttributes="Bold" HorizontalOptions="Center" FontSize="12"/>
+                        <CollectionView ItemsSource="{Binding ChildsRoomItems}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Label Text="{Binding}" FontSize="14" HorizontalOptions="Center"/>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                    <Frame.GestureRecognizers>
+                        <DropGestureRecognizer AllowDrop="True" CommandParameter="חדר ילד"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+                <!-- מטבח -->
+                <Frame Grid.Row="1" Grid.Column="0" BackgroundColor="#FFFDE7" BorderColor="#FFF9C4" Padding="5">
+                    <StackLayout>
+                        <Label Text="🍳 מטבח" FontAttributes="Bold" HorizontalOptions="Center" FontSize="12"/>
+                        <CollectionView ItemsSource="{Binding KitchenItems}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Label Text="{Binding}" FontSize="14" HorizontalOptions="Center"/>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                    <Frame.GestureRecognizers>
+                        <DropGestureRecognizer AllowDrop="True" CommandParameter="מטבח"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+                <!-- סלון -->
+                <Frame Grid.Row="1" Grid.Column="1" BackgroundColor="#E8F5E9" BorderColor="#C8E6C9" Padding="5">
+                    <StackLayout>
+                        <Label Text="🛋️ סלון" FontAttributes="Bold" HorizontalOptions="Center" FontSize="12"/>
+                        <CollectionView ItemsSource="{Binding LivingRoomItems}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Label Text="{Binding}" FontSize="14" HorizontalOptions="Center"/>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                    <Frame.GestureRecognizers>
+                        <DropGestureRecognizer AllowDrop="True" CommandParameter="סלון"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+                <!-- גינה -->
+                <Frame Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" BackgroundColor="#F1F8E9" BorderColor="#DCEDC8" Padding="5">
+                    <StackLayout>
+                        <Label Text="🌳 גינה" FontAttributes="Bold" HorizontalOptions="Center" FontSize="12"/>
+                        <CollectionView ItemsSource="{Binding GardenItems}" ItemsLayout="HorizontalList">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Label Text="{Binding}" FontSize="14" Margin="5"/>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                    <Frame.GestureRecognizers>
+                        <DropGestureRecognizer AllowDrop="True" CommandParameter="גינה"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+            </Grid>
+        </Grid>
+
+        <!-- 3. כפתור הפקה תחתון קבוע -->
+        <Button Grid.Row="2" Text="הפק ניתוח AI 🌟" Command="{Binding EndGameCommand}" 
+                BackgroundColor="#FF8A65" TextColor="White" FontAttributes="Bold" HeightRequest="45"/>
+    </Grid>
+</ContentPage>

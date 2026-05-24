@@ -1,75 +1,80 @@
-﻿#nullable disable
-using EdenProject.Models;
+﻿using EdenProject.Models;
+using EdenProject.Services;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace EdenProject.ViewModels
 {
     public class MainPageViewModel : ViewModelBase
     {
-        // Property להודעת ברוכים הבאים - מושך נתונים מהמשתמש הסטטי ב-App
-        public string HelloMessage
+        private readonly FirebaseService _firebaseService;
+
+        // רשימת הילדים שתוצג ב-CollectionView
+        public ObservableCollection<Child> ChildrenList { get; set; } = new ObservableCollection<Child>();
+
+        private string _helloMessage;
+        public string HelloMessage { get => _helloMessage; set { _helloMessage = value; OnPropertyChanged(); } }
+
+        // הילד שנבחר מהרשימה
+        private Child _selectedChild;
+        public Child SelectedChild
         {
-            get
+            get => _selectedChild;
+            set
             {
-                if (App.CurrentUser != null && !string.IsNullOrEmpty(App.CurrentUser.FirstName))
-                {
-                    return $"Hello {App.CurrentUser.FirstName}";
-                }
-                return "Hello Guest";
+                _selectedChild = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsChildSelected));
             }
         }
 
-        // בדיקה האם המשתמש הוא אדמין (לצורך הצגת/הסתרת כפתור הניהול)
-        public bool IsAdmin => App.CurrentUser?.IsAdmin ?? false;
+        // האם כפתור "התחל משחק" פעיל
+        public bool IsChildSelected => SelectedChild != null;
 
-        #region Commands
-        public ICommand NavigateCommand { get; }
+        public bool IsAdmin { get; set; } // יתעדכן לפי המשתמש המחובר
+
+        public ICommand AddChildCommand { get; }
+        public ICommand StartGameCommand { get; }
         public ICommand SignOutCommand { get; }
-        #endregion
+        public ICommand NavigateCommand { get; }
 
         public MainPageViewModel()
         {
-            // פקודת ניווט כללית לפי שם ה-Route שנשלח מה-XAML
-            NavigateCommand = new Command<string>(async (route) =>
+            _firebaseService = new FirebaseService();
+
+            // הגדרת פקודות
+            AddChildCommand = new Command(async () => await Shell.Current.GoToAsync("AddChildPage"));
+
+            StartGameCommand = new Command(async () =>
             {
-                if (!string.IsNullOrEmpty(route))
-                {
-                    // אם מנסים לנווט ל-MainPage, נשתמש בנתיב מוחלט כדי למנוע את השגיאה
-                    if (route == "MainPage")
-                    {
-                        await Shell.Current.GoToAsync("///MainPage");
-                        return;
-                    }
-
-                    // בדיקת אדמין (כפי שהיה לך)
-                    if (route == "AdminPage" && !IsAdmin)
-                    {
-                        await Shell.Current.DisplayAlert("שגיאה", "אין לך הרשאות ניהול", "סגור");
-                        return;
-                    }
-
-                    // ניווט רגיל לשאר הדפים
-                    await Shell.Current.GoToAsync(route);
-                }
+                // מעבר למסך המשחק עם הילד שנבחר
+                await Shell.Current.GoToAsync($"DollHousePage?childId={SelectedChild.Id}");
             });
 
-            // פקודת התנתקות
-            SignOutCommand = new Command(async () =>
-            {
-                bool confirm = await Shell.Current.DisplayAlert("התנתקות", "האם אתה בטוח שברצונך לצאת?", "כן", "לא");
-                if (confirm)
-                {
-                    App.CurrentUser = null; // מנקה את פרטי המשתמש מהזיכרון
-                    await Shell.Current.GoToAsync("///SignInPage"); // חוזר לדף ההתחברות ומאפס את המחסנית
-                }
-            });
+            SignOutCommand = new Command(async () => await Shell.Current.GoToAsync("//SignInPage"));
+
+            NavigateCommand = new Command<string>(async (page) => await Shell.Current.GoToAsync($"//{page}"));
+
+            // טעינה ראשונית של הנתונים
+            LoadChildren();
         }
 
-        // מתודה שניתן לקרוא لها מה-Code Behind (OnAppearing) כדי לרענן את השם
-        public void RefreshUser()
+        public async Task LoadChildren() // שיניתי ל-Task במקום void כדי שנוכל לחכות לזה
         {
-            OnPropertyChanged(nameof(HelloMessage));
-            OnPropertyChanged(nameof(IsAdmin));
+            // בדיקה מי המשתמש המחובר באמת
+            if (App.CurrentUser == null) return;
+
+            string currentParentId = App.CurrentUser.UserId;
+
+            var children = await _firebaseService.GetChildrenByParent(currentParentId);
+
+            ChildrenList.Clear();
+            foreach (var child in children)
+            {
+                ChildrenList.Add(child);
+            }
+
+            HelloMessage = $"שלום, {App.CurrentUser.FirstName}";
         }
     }
 }

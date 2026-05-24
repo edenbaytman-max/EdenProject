@@ -1,131 +1,87 @@
-﻿#nullable disable
-using EdenProject.Models;
-using EdenProject.Service;
+﻿using EdenProject.Models;
+using EdenProject.Services;
 using System.Windows.Input;
 
 namespace EdenProject.ViewModels
 {
     public class SignUpViewModel : ViewModelBase
     {
-        private readonly DBMokup _db;
+        private readonly FirebaseService _firebaseService;
 
-        #region Private Fields
+        // שדות Binding
         private string _firstName;
+        public string FirstName { get => _firstName; set { _firstName = value; OnPropertyChanged(); } }
+
         private string _lastName;
-        private string _email;
-        private string _password;
-        private string _mobile;
-        private bool _entryAsPassword;
-        private string _passwordIconCode;
-        #endregion
+        public string LastName { get => _lastName; set { _lastName = value; OnPropertyChanged(); } }
 
-        #region Public Properties
-        public string FirstName
-        {
-            get => _firstName;
-            set { _firstName = value; OnPropertyChanged(); ((Command)SignUpCommand).ChangeCanExecute(); }
-        }
-        public string LastName
-        {
-            get => _lastName;
-            set { _lastName = value; OnPropertyChanged(); ((Command)SignUpCommand).ChangeCanExecute(); }
-        }
-        public string UserEmail
-        {
-            get => _email;
-            set { _email = value; OnPropertyChanged(); ((Command)SignUpCommand).ChangeCanExecute(); }
-        }
-        public string UserPassword
-        {
-            get => _password;
-            set { _password = value; OnPropertyChanged(); ((Command)SignUpCommand).ChangeCanExecute(); }
-        }
-        public string Mobile
-        {
-            get => _mobile;
-            set { _mobile = value; OnPropertyChanged(); ((Command)SignUpCommand).ChangeCanExecute(); }
-        }
+        private string _userEmail;
+        public string UserEmail { get => _userEmail; set { _userEmail = value; OnPropertyChanged(); } }
 
-        public bool EntryAsPassword
-        {
-            get => _entryAsPassword;
-            set { _entryAsPassword = value; OnPropertyChanged(); }
-        }
+        private string _userMobile;
+        public string UserMobile { get => _userMobile; set { _userMobile = value; OnPropertyChanged(); } }
 
-        public string PasswordIconCode
-        {
-            get => _passwordIconCode;
-            set { _passwordIconCode = value; OnPropertyChanged(); }
-        }
-        #endregion
+        private string _userPassword;
+        public string UserPassword { get => _userPassword; set { _userPassword = value; OnPropertyChanged(); } }
 
-        #region Commands
-        public ICommand ShowPasswordCommand { get; }
+        private bool _entryAsPassword = true;
+        public bool EntryAsPassword { get => _entryAsPassword; set { _entryAsPassword = value; OnPropertyChanged(); } }
+
+        private string _passwordIconCode = "👁"; // או קוד ה-Material שלך
+        public string PasswordIconCode { get => _passwordIconCode; set { _passwordIconCode = value; OnPropertyChanged(); } }
+
         public ICommand SignUpCommand { get; }
+        public ICommand ShowPasswordCommand { get; }
         public ICommand SignInCommand { get; }
-        #endregion
 
         public SignUpViewModel()
         {
-            _db = new DBMokup();
+            _firebaseService = new FirebaseService();
 
-            // מצב ראשוני
-            EntryAsPassword = true;
-            PasswordIconCode = "\ue8f5"; // אייקון עין סגורה
+            SignUpCommand = new Command(async () => await OnSignUp());
 
-            // אתחול פקודות
-            ShowPasswordCommand = new Command(TogglePasswordButton);
-            SignUpCommand = new Command(SignUp, Validate);
-            SignInCommand = new Command(NavigateToSignIn);
+            ShowPasswordCommand = new Command(() =>
+            {
+                EntryAsPassword = !EntryAsPassword;
+                PasswordIconCode = EntryAsPassword ? "👁" : "🔒";
+            });
+
+            SignInCommand = new Command(async () => await Shell.Current.GoToAsync("//SignInPage"));
         }
 
-        private void TogglePasswordButton()
+        private async Task OnSignUp()
         {
-            EntryAsPassword = !EntryAsPassword;
-            PasswordIconCode = EntryAsPassword ? "\ue8f5" : "\ue8f4";
-        }
+            // בדיקה שכל השדות מלאים
+            if (string.IsNullOrEmpty(UserEmail) || string.IsNullOrEmpty(UserPassword) || string.IsNullOrEmpty(FirstName))
+            {
+                await App.Current.MainPage.DisplayAlert("שגיאה", "אנא מלאי את כל השדות החשובים", "אוקיי");
+                return;
+            }
 
-        private bool Validate()
-        {
-            return !string.IsNullOrWhiteSpace(FirstName) &&
-                   !string.IsNullOrWhiteSpace(LastName) &&
-                   !string.IsNullOrWhiteSpace(UserEmail) &&
-                   !string.IsNullOrWhiteSpace(UserPassword) &&
-                   !string.IsNullOrWhiteSpace(Mobile);
-        }
-
-        private async void SignUp()
-        {
-            // 1. יצירת אובייקט המשתמש מהשדות בטופס
             var newUser = new User
             {
-                FirstName = this.FirstName,
-                LastName = this.LastName,
                 UserEmail = this.UserEmail,
                 UserPassword = this.UserPassword,
-                // וודאי שהשם במודל תואם (UserMobile או Mobile)
-                UserMobile = this.Mobile
+                FirstName = this.FirstName,
+                LastName = this.LastName,
+                UserMobile = this.UserMobile,
+                IsAdmin = false
             };
 
-            // 2. שמירה ב-Mockup
-            _db.AddUser(newUser);
+            var success = await _firebaseService.RegisterUser(newUser);
 
-            // --- התיקון הקריטי כאן ---
-            // 3. הגדרת המשתמש שנרשם כמשתמש המחובר של האפליקציה
-            App.CurrentUser = newUser;
-            // -------------------------
+            if (success)
+            {
+                await App.Current.MainPage.DisplayAlert("הצלחה", "נרשמת בהצלחה למערכת KleinPlay AI", "מעולה");
 
-            // 4. הצגת הודעת הצלחה
-            await Shell.Current.DisplayAlert("הצלחה", $"ברוכים הבאים {FirstName}!", "אישור");
+                // כאן הניווט לדף הראשי (MainPage) תוך איפוס המחסנית (Stack)
+                await Shell.Current.GoToAsync("//MainPage");
+            }
+            else
+            {
+                await App.Current.MainPage.DisplayAlert("שגיאה", "לא הצלחנו לשמור את הנתונים ב-Firebase", "נסה שוב");
+            }
 
-            // 5. ניווט ישיר ל-MainPage
-            await Shell.Current.GoToAsync("///MainPage");
-        }
-
-        private async void NavigateToSignIn()
-        {
-            // חזרה לדף ה-Login (אם המשתמש התחרט ורוצה להתחבר)
-            await Shell.Current.GoToAsync("//SignInPage");
         }
     }
 }
