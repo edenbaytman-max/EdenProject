@@ -1,7 +1,12 @@
 ﻿using EdenProject.Models;
 using EdenProject.Services;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Maui.Controls;
 
 namespace EdenProject.ViewModels
 {
@@ -47,19 +52,44 @@ namespace EdenProject.ViewModels
 
             StartGameCommand = new Command(async () =>
             {
+                if (SelectedChild == null) return;
                 // מעבר למסך המשחק עם הילד שנבחר
                 await Shell.Current.GoToAsync($"DollHousePage?childId={SelectedChild.Id}");
             });
 
             SignOutCommand = new Command(async () => await Shell.Current.GoToAsync("//SignInPage"));
 
-            NavigateCommand = new Command<string>(async (page) => await Shell.Current.GoToAsync($"//{page}"));
+            // התיקון: ניווט דינמי לפי סוג העמוד כדי למנוע קריסה או אי-מעבר
+            NavigateCommand = new Command<string>(async (page) =>
+            {
+                if (string.IsNullOrEmpty(page)) return;
+
+                try
+                {
+                    // אם מנווטים חזרה למסך ההתחברות, נשתמש ב- // כדי לנקות את הסטאק
+                    if (page == "SignInPage")
+                    {
+                        await Shell.Current.GoToAsync($"//{page}");
+                    }
+                    else
+                    {
+                        // עבור AccountPage, AdminPage וכל השאר הרשומים כ-RegisterRoute
+                        await Shell.Current.GoToAsync(page);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Navigation error: {ex.Message}");
+                    // גיבוי נוסף במקרה הצורך
+                    await Shell.Current.GoToAsync(page);
+                }
+            });
 
             // טעינה ראשונית של הנתונים
-            LoadChildren();
+            _ = LoadChildren();
         }
 
-        public async Task LoadChildren() // שיניתי ל-Task במקום void כדי שנוכל לחכות לזה
+        public async Task LoadChildren()
         {
             // בדיקה מי המשתמש המחובר באמת
             if (App.CurrentUser == null) return;

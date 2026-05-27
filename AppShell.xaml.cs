@@ -16,6 +16,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(AnalysisResultsPage), typeof(AnalysisResultsPage));
         Routing.RegisterRoute(nameof(AddChildPage), typeof(AddChildPage));
         Routing.RegisterRoute(nameof(DollHousePage), typeof(DollHousePage));
+        Routing.RegisterRoute("ParentVerificationPage", typeof(EdenProject.Views.ParentVerificationPage));
 
     }
 }

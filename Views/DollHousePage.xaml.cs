@@ -1,4 +1,6 @@
 using EdenProject.ViewModels;
+using System.Collections.Generic;
+using Microsoft.Maui.Controls;
 
 namespace EdenProject.Views
 {
@@ -12,22 +14,29 @@ namespace EdenProject.Views
 
         private void DragGestureRecognizer_DragStarting(object sender, DragStartingEventArgs e)
         {
-            // מקבל את הפרמטר שכתבנו ב-XAML (למשל "Character:אמא" או "Emotion:כעס")
-            string fullData = (string)((DragGestureRecognizer)sender).CommandParameter;
-            e.Data.Package.Properties.Add("FullData", fullData);
+            var recognizer = (DragGestureRecognizer)sender;
+
+            // שליפת מחרוזת הנתונים שהוגדרה ב-XAML
+            if (recognizer.DragStartingCommandParameter is string fullData)
+            {
+                e.Data.Properties.Add("FullData", fullData);
+            }
         }
 
         private void DropGestureRecognizer_Drop(object sender, DropEventArgs e)
         {
-            if (!e.Data.Package.Properties.ContainsKey("FullData")) return;
+            if (!e.Data.Properties.ContainsKey("FullData")) return;
 
-            string fullData = (string)e.Data.Package.Properties["FullData"];
-            string room = (string)((DropGestureRecognizer)sender).CommandParameter;
+            string fullData = (string)e.Data.Properties["FullData"];
 
-            // פיצול הנתונים לפי הנקודתיים
+            var recognizer = (DropGestureRecognizer)sender;
+            string room = recognizer.AutomationId;
+
             string[] parts = fullData.Split(':');
-            string type = parts[0];  // "Character" או "Emotion"
-            string item = parts[1];  // השם של הדמות או האימוג'י עצמו
+            if (parts.Length < 2) return;
+
+            string type = parts[0];
+            string item = parts[1];
 
             var data = new Dictionary<string, string>
             {
@@ -36,8 +45,10 @@ namespace EdenProject.Views
                 { "Type", type }
             };
 
-            // הפעלת הפקודה המעודכנת ב-ViewModel
-            ((DollHouseViewModel)BindingContext).DropItemCommand.Execute(data);
+            if (BindingContext is DollHouseViewModel viewModel)
+            {
+                viewModel.DropItemCommand.Execute(data);
+            }
         }
     }
 }

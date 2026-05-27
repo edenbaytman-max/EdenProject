@@ -16,15 +16,14 @@
 
     <Grid RowDefinitions="Auto, *, Auto">
 
-        <HorizontalStackLayout Grid.Row="0" HorizontalOptions="Center" Spacing="20" Padding="15">
-            <Button Text="🏠" Command="{Binding NavigateCommand}" CommandParameter="MainPage" BackgroundColor="Transparent" FontSize="20"/>
-            <Button Text="👤" Command="{Binding NavigateCommand}" CommandParameter="AccountPage" BackgroundColor="Transparent" FontSize="20"/>
+        <HorizontalStackLayout Grid.Row="0" HorizontalOptions="Center" Spacing="25" Padding="15">
+            <Button Text="👤" Command="{Binding NavigateCommand}" CommandParameter="AccountPage" BackgroundColor="Transparent" FontSize="24"/>
             <Button Text="👥" 
                     Command="{Binding NavigateCommand}" 
                     CommandParameter="AdminPage" 
                     IsVisible="{Binding IsAdmin}" 
-                    BackgroundColor="Transparent" FontSize="20"/>
-            <Button Text="🚪" Command="{Binding SignOutCommand}" BackgroundColor="Transparent" FontSize="20"/>
+                    BackgroundColor="Transparent" FontSize="24"/>
+            <Button Text="🚪" Command="{Binding SignOutCommand}" BackgroundColor="Transparent" FontSize="24"/>
         </HorizontalStackLayout>
 
         <VerticalStackLayout Grid.Row="1" Spacing="20" Padding="20">

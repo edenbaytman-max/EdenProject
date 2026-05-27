@@ -17,7 +17,7 @@ namespace EdenProject.ViewModels
 
         public ObservableCollection<GameAction> ActionsTracked { get; set; } = new ObservableCollection<GameAction>();
 
-        // רשימות התצוגה עבור כל חדר בנפרד (כדי שהפריטים יישארו בחדר ויזואלית)
+        // רשימות התצוגה עבור כל חדר בנפרד
         public ObservableCollection<string> ParentsRoomItems { get; set; } = new ObservableCollection<string>();
         public ObservableCollection<string> ChildsRoomItems { get; set; } = new ObservableCollection<string>();
         public ObservableCollection<string> KitchenItems { get; set; } = new ObservableCollection<string>();
@@ -59,39 +59,57 @@ namespace EdenProject.ViewModels
         {
             _firebaseService = new FirebaseService();
 
-            // פקודה אחת חכמה שמטפלת גם בגרירת דמות וגם בגרירת רגש
             DropItemCommand = new Command<Dictionary<string, string>>((data) =>
             {
                 if (data == null) return;
 
-                string item = data["Item"]; // יכול להיות דמות או אימוג'י
+                string item = data["Item"];
                 string room = data["Room"];
-                string type = data["Type"]; // "Character" או "Emotion"
+                string type = data["Type"];
 
-                // 1. הוספה ויזואלית לרשימה של החדר המתאים
+                // 1. הוספה ויזואלית לרשימה של החדר
                 AddItemToRoomVisual(room, item);
 
-                // 2. תיעוד הפעולה עבור ה-AI של גוגל
-                var newAction = new GameAction
-                {
-                    Timestamp = DateTime.Now,
-                    RoomName = room
-                };
-
+                // 2. לוגיקת הצמדה חכמה עבור ה-AI
                 if (type == "Character")
                 {
-                    newAction.CharacterName = item;
-                    newAction.Emotion = "לא נקבע";
+                    var newAction = new GameAction
+                    {
+                        Timestamp = DateTime.Now,
+                        RoomName = room,
+                        CharacterName = item,
+                        Emotion = "לא נקבע" // יתעדכן אם יגררו רגש על החדר
+                    };
+                    ActionsTracked.Add(newAction);
                     GameStatusMessage = $"הדמות '{item}' הונחה ב{room}";
                 }
-                else // Emotion
+                else // מדובר בגרור של Emotion
                 {
-                    newAction.CharacterName = "כללי/אווירה";
-                    newAction.Emotion = item;
-                    GameStatusMessage = $"נקבעה אווירת {item} ב{room}";
-                }
+                    // מחפשים אם יש כבר דמות בחדר הזה שגררו אותה קודם לכן (האחרונה שנכנסה לחדר)
+                    var lastActionInRoom = ActionsTracked
+                        .Where(a => a.RoomName == room && a.CharacterName != "כללי/אווירה")
+                        .LastOrDefault();
 
-                ActionsTracked.Add(newAction);
+                    if (lastActionInRoom != null && lastActionInRoom.Emotion == "לא נקבע")
+                    {
+                        // מצמידים את הרגש ישירות לדמות הקיימת בחדר!
+                        lastActionInRoom.Emotion = item;
+                        GameStatusMessage = $"הדמות '{lastActionInRoom.CharacterName}' מרגישה {item} ב{room}";
+                    }
+                    else
+                    {
+                        // אם אין דמות בחדר או שהדמויות כבר קיבלו רגש, מייצרים פעולת אווירה כללית לחדר
+                        var ambientAction = new GameAction
+                        {
+                            Timestamp = DateTime.Now,
+                            RoomName = room,
+                            CharacterName = "כללי/אווירה",
+                            Emotion = item
+                        };
+                        ActionsTracked.Add(ambientAction);
+                        GameStatusMessage = $"נקבעה אווירת {item} ב{room}";
+                    }
+                }
             });
 
             EndGameCommand = new Command(async () => await OnEndGame());
@@ -136,20 +154,24 @@ namespace EdenProject.ViewModels
                 return;
             }
 
-            bool confirm = await App.Current.MainPage.DisplayAlert("סיום משחק", "האם לסיים ולשלוח את הניתוח ל-AI?", "כן, נתח", "עוד לא");
+            bool confirm = await App.Current.MainPage.DisplayAlert("סיום משחק", "האם לסיים את המשחק ולעבור לאזור ההורים?", "כן", "עוד לא");
             if (!confirm) return;
 
             try
             {
-                var aiService = new AIService();
                 var childToSend = CurrentChild ?? new Child { Name = this.ChildName, Age = 5 };
-                string analysisResult = await aiService.GetAnalysisAsync(ActionsTracked.ToList(), childToSend);
 
-                await Shell.Current.GoToAsync($"AnalysisResultsPage?analysisText={Uri.EscapeDataString(analysisResult)}");
+                var navigationParameter = new ShellNavigationQueryParameters
+                {
+                    { "GameActions", ActionsTracked.ToList() },
+                    { "ChildDetails", childToSend }
+                };
+
+                await Shell.Current.GoToAsync("ParentVerificationPage", navigationParameter);
             }
             catch (Exception ex)
             {
-                await App.Current.MainPage.DisplayAlert("שגיאה", "חלה בעיה בייצור הניתוח: " + ex.Message, "סגור");
+                await App.Current.MainPage.DisplayAlert("שגיאה", "חלה בעיה במעבר לעמוד האימות: " + ex.Message, "סגור");
             }
         }
     }
